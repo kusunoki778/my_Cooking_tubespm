@@ -1,6 +1,6 @@
-myCooking - Aplikasi Manajemen Resep
+myCooking: Smart Recipe Management System
 
-myCooking adalah aplikasi *mobile* berbasis Flutter yang dirancang untuk membantu pengguna mencatat, mengelola, dan menyimpan resep masakan favorit mereka secara digital. Aplikasi ini dikembangkan sebagai Tugas Besar mata kuliah Pemrograman Mobile 1.
+myCooking adalah aplikasi mobile inovatif berbasis Flutter yang dirancang untuk membantu pengguna mendokumentasikan, mengelola, dan mengeksplorasi koleksi resep masakan secara digital. Aplikasi ini mengintegrasikan fungsionalitas REST API untuk sinkronisasi data awan dan Shared Preferences untuk manajemen preferensi pengguna secara persisten
 
 ---
 
@@ -12,35 +12,46 @@ Tim Pengembang (Kelompok 8)
 
 ---
 
-Fitur Utama
-Aplikasi ini memiliki fitur lengkap sesuai standar CRUD dan UI/UX modern:
-Jelajah Resep: Menampilkan daftar resep dari API.
-Pencarian: Cari resep berdasarkan judul atau kategori.
-Manajemen Resep (CRUD): Tambah, Edit, dan Hapus resep sendiri.
-Favorit: Simpan resep kesukaan ke penyimpanan lokal (Offline).
-Tema Gelap (Dark Mode): Dukungan tampilan *Light* dan *Dark* mode.
+Fitur Unggulan
+Aplikasi ini telah mengimplementasikan seluruh fungsi utama sesuai standar penilaian:
+- Autentikasi Pengguna: Sistem Login dan Register yang aman untuk personalisasi data resep.
+- Manajemen Resep (CRUD): Kebebasan pengguna untuk Menambah (Create), Melihat (Read), Mengubah (Update), dan Menghapus (Delete) resep secara real-time.
+- Sinkronisasi Cloud: Integrasi media storage untuk pengelolaan gambar masakan yang efisien.
+- Adaptasi Visual (Dual Theme): Dukungan Tema Terang dan Gelap yang tersimpan secara permanen pada perangkat.
+- User Experience Modern: Dilengkapi dengan efek shimmer loading, navigasi yang jelas, dan validasi input pada setiap formulir.
 
-Teknologi yang Digunakan
-Kami menggunakan pustaka (dependencies) berikut agar aplikasi berjalan optimal:
-[Flutter](https://flutter.dev):** Framework UI utama.
-[Provider](https://pub.dev/packages/provider):** Manajemen state aplikasi (memisahkan logika dari UI).
-[Dio](https://pub.dev/packages/dio):** Menangani koneksi jaringan (HTTP Request) ke REST API.
-[Shared Preferences](https://pub.dev/packages/shared_preferences):** Menyimpan data lokal (Tema & List Favorit).
-[Shimmer](https://pub.dev/packages/shimmer):** Efek *loading* yang modern.
+Arsitektur Sistem
+Kami menerapkan prinsip Separation of Concerns (SoC) untuk menjaga kualitas kode dan kemudahan pemeliharaan:
+- Presentation Layer: Folder screens dan widgets yang menangani antarmuka dan interaksi visual.
+- State Management Layer: Memanfaatkan Provider untuk menangani logika data dan pembaruan UI secara reaktif.
+- Network & Logic Layer: Menggunakan Dio untuk komunikasi data yang andal melalui folder services.
+- Persistence Layer: Modul shared_prefs.dart yang menangani penyimpanan sesi dan preferensi pengguna.
 
 ---
 
-Cara Menjalankan Aplikasi
+Panduan Instalasi & Pengembangan
+Ikuti langkah-langkah berikut untuk menjalankan proyek di lingkungan lokal Anda:
+- Persiapan Proyek
+git clone https://github.com/kusunoki778/my_Cooking_tubespm
+cd my_resep
+- Konfigurasi SDK & Dependensi Pastikan Flutter SDK sudah terpasang, lalu jalankan:
+flutter pub get
+- Eksekusi Aplikasi Jalankan aplikasi pada emulator atau perangkat fisik Android:
+flutter run
 
-Ikuti langkah-langkah berikut untuk mencoba aplikasi ini di komputer Anda:
+Prosedur Build Produksi (APK)
+Sesuai dengan S&K teknis, berikut adalah instruksi untuk menghasilkan file instalasi Android (.apk):
+- Bersihkan cache build sebelumnya: flutter clean.
+- Ambil ulang paket dependensi: flutter pub get.
+- Jalankan perintah kompilasi release:
+flutter build apk --release
+Lokasi File: Hasil akhir dapat ditemukan di build/app/outputs/flutter-apk/app-release.apk.
 
-1.Persiapan (Install Dependencies)
-Pastikan Flutter SDK sudah terinstall, lalu buka terminal di folder proyek dan jalankan:
-dengan perintah > flutter pub get
-2.Jalankan Aplikasi (Debug Mode)
-Hubungkan HP Android (mode pengembang aktif) atau nyalakan Emulator, lalu ketik:
-dengan perintah>flutter run
-3.Build File APK (Release)
-Untuk menghasilkan file .apk yang siap diinstal di HP Android:
-dengan perintah>flutter build apk --release
-Lokasi File APK: File hasil build akan muncul di direktori: build/app/outputs/flutter-apk/app-release.apk
+Teknologi & Library Utama
+Berikut adalah dependensi inti yang digunakan berdasarkan pubspec.yaml:
+- Provider (^6.0.5): Manajemen state aplikasi.
+- Dio (^5.0.3): Client HTTP untuk integrasi REST API.
+- Shared Preferences (^2.0.15): Penyimpanan data lokal yang persisten.
+- Shimmer (^3.0.0): Efek pemuatan data yang modern.
+- Image Picker (^1.0.7): Penanganan pengambilan gambar dari galeri/kamera.
+- Google Fonts (^6.3.3): Tipografi antarmuka yang profesional.
