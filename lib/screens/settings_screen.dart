@@ -1,9 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:my_resep/providers/theme_provider.dart';
+import 'package:my_resep/utils/shared_prefs.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  String _username = "User";
+  String _fullname = "Chef";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  void _loadProfile() async {
+    final session = await Prefs.getUserSession();
+    setState(() {
+      _username = session['username'] ?? "User";
+      _fullname = session['fullname'] ?? "Chef";
+    });
+  }
+
+  Widget _buildProfileImage() {
+    return Image.asset(
+      'assets/icon/default_profile.jpeg', 
+      fit: BoxFit.cover,
+    );
+  }
 
   void _clearCache(BuildContext context) {
     PaintingBinding.instance.imageCache.clear();
@@ -15,6 +45,33 @@ class SettingsScreen extends StatelessWidget {
         duration: Duration(seconds: 2),
       ),
     );
+  }
+
+  void _logout(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Konfirmasi Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar dari aplikasi?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Logout', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      await Prefs.clearSession(); 
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    }
   }
 
   void _showInfo(BuildContext context) {
@@ -41,11 +98,7 @@ class SettingsScreen extends StatelessWidget {
                   width: 50,
                   height: 50,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => const Icon(
-                    Icons.restaurant, 
-                    color: Colors.teal, 
-                    size: 40
-                  ),
+                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.restaurant, color: Colors.teal, size: 40),
                 ),
               ),
             ),
@@ -63,9 +116,7 @@ class SettingsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-            ),
+            style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10)),
             child: const Text("Tutup", style: TextStyle(color: Colors.teal, fontWeight: FontWeight.bold)),
           ),
         ],
@@ -96,36 +147,31 @@ class SettingsScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(4), 
                         decoration: BoxDecoration(
                           color: Colors.teal.withOpacity(0.1),
                           shape: BoxShape.circle,
+                          border: Border.all(color: Colors.teal, width: 2), 
                         ),
                         child: ClipOval(
-                          child: Image.asset(
-                            'assets/icon/icon.png',
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => const Icon(
-                              Icons.restaurant, 
-                              size: 70, 
-                              color: Colors.teal
-                            ),
+                          child: SizedBox(
+                            width: 100, 
+                            height: 100,
+                            child: _buildProfileImage(), 
                           ),
                         ),
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'myCooking',
+                        _fullname.isNotEmpty ? _fullname : _username,
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.teal,
-                          letterSpacing: 1.2,
+                          fontSize: 24,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text('Dapur digital pribadimu', style: TextStyle(color: Colors.grey[600])),
+                      Text('@$_username', style: TextStyle(color: Colors.grey[600])),
                     ],
                   ),
                 ),
@@ -199,23 +245,45 @@ class SettingsScreen extends StatelessWidget {
                     ],
                   ),
                 ),
+
+                const SizedBox(height: 25),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 4, bottom: 8),
+                        child: Text('AKUN', style: headerStyle),
+                      ),
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                        child: ListTile(
+                          leading: const Icon(Icons.logout_rounded, color: Colors.red),
+                          title: const Text(
+                            'Keluar / Logout', 
+                            style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)
+                          ),
+                          onTap: () => _logout(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
+          
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 20, top: 10),
               child: Column(
                 children: [
-                  const Text(
-                    'myCooking App',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
-                  ),
+                  const Text('myCooking App', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                   const SizedBox(height: 4),
-                  Text(
-                    'Versi 1.0.0',
-                    style: TextStyle(color: Colors.grey[500], fontSize: 12),
-                  ),
+                  Text('Versi 1.0.0', style: TextStyle(color: Colors.grey[500], fontSize: 12)),
                 ],
               ),
             ),

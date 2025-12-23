@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:my_resep/models/recipe.dart';
 import 'package:my_resep/providers/recipe_provider.dart';
 import 'package:my_resep/services/api_service.dart';
+import 'package:my_resep/utils/shared_prefs.dart';
 
 class FormScreen extends StatefulWidget {
   final Recipe? recipe;
@@ -115,7 +116,6 @@ class _FormScreenState extends State<FormScreen> {
 
     if (_selectedImageFile != null) {
       final apiService = Provider.of<ApiService>(context, listen: false);
-      
       final cloudUrl = await apiService.uploadImage(_selectedImageFile!);
       
       if (cloudUrl != null) {
@@ -129,6 +129,11 @@ class _FormScreenState extends State<FormScreen> {
 
     setState(() => _loadingMessage = 'Menyimpan Resep...');
 
+    final session = await Prefs.getUserSession();
+    String currentUser = session['fullname']!.isNotEmpty 
+        ? session['fullname']! 
+        : (session['username']!.isNotEmpty ? session['username']! : 'Chef myCooking');
+
     final data = {
       'title': _titleCtrl.text,
       'category': _selectedCategory,
@@ -139,7 +144,7 @@ class _FormScreenState extends State<FormScreen> {
       'cookTime': _cookTimeCtrl.text, 
       'servings': int.tryParse(_servingsCtrl.text) ?? 1,
       'ingredients': validIngredients,
-      'author': 'Chef myCooking', 
+      'author': currentUser, 
     };
 
     final prov = Provider.of<RecipeProvider>(context, listen: false);

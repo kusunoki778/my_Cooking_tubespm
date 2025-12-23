@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:my_resep/providers/recipe_provider.dart';
 import 'package:my_resep/screens/form_screen.dart';
+import 'package:my_resep/utils/shared_prefs.dart'; 
 
 class DetailScreen extends StatefulWidget {
   final String recipeId;
@@ -155,41 +156,57 @@ class _DetailScreenState extends State<DetailScreen> {
                   ),
                 ),
               ),
+              
               Padding(
                 padding: const EdgeInsets.only(right: 12, left: 4),
-                child: CircleAvatar(
-                  backgroundColor: Colors.black26,
-                  child: PopupMenuButton(
-                    icon: const Icon(Icons.more_vert, color: Colors.white),
-                    color: cardColor,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    itemBuilder: (_) => [
-                      const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit, size: 20), SizedBox(width: 8), Text('Edit Resep')])),
-                      const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete, color: Colors.red, size: 20), SizedBox(width: 8), Text('Hapus', style: TextStyle(color: Colors.red))])),
-                    ],
-                    onSelected: (val) async {
-                      if (val == 'edit') {
-                        final updated = await Navigator.push(
-                          context, 
-                          MaterialPageRoute(builder: (_) => FormScreen(recipe: r))
-                        );
-                        if (updated == true && mounted) {
-                          prov.loadDetail(r.id);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Resep berhasil diperbarui!'),
-                              backgroundColor: Colors.teal,
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        }
-                      } else if (val == 'delete') {
-                        _deleteRecipe(context);
-                      }
-                    },
-                  ),
+                child: FutureBuilder<Map<String, String>>(
+                  future: Prefs.getUserSession(), 
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const SizedBox.shrink();
+
+                    final myUsername = snapshot.data!['username'];
+                    final myFullname = snapshot.data!['fullname'];
+                    
+                    final isOwner = (r.author == myUsername) || (r.author == myFullname);
+
+                    if (!isOwner) return const SizedBox.shrink();
+
+                    return CircleAvatar(
+                      backgroundColor: Colors.black26,
+                      child: PopupMenuButton(
+                        icon: const Icon(Icons.more_vert, color: Colors.white),
+                        color: cardColor,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        itemBuilder: (_) => [
+                          const PopupMenuItem(value: 'edit', child: Row(children: [Icon(Icons.edit, size: 20), SizedBox(width: 8), Text('Edit Resep')])),
+                          const PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete, color: Colors.red, size: 20), SizedBox(width: 8), Text('Hapus', style: TextStyle(color: Colors.red))])),
+                        ],
+                        onSelected: (val) async {
+                          if (val == 'edit') {
+                            final updated = await Navigator.push(
+                              context, 
+                              MaterialPageRoute(builder: (_) => FormScreen(recipe: r))
+                            );
+                            if (updated == true && mounted) {
+                              prov.loadDetail(r.id);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Resep berhasil diperbarui!'),
+                                  backgroundColor: Colors.teal,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          } else if (val == 'delete') {
+                            _deleteRecipe(context);
+                          }
+                        },
+                      ),
+                    );
+                  },
                 ),
               ),
+
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(

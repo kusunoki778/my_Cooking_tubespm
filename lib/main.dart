@@ -6,14 +6,21 @@ import 'package:my_resep/providers/theme_provider.dart';
 import 'package:my_resep/services/api_service.dart'; 
 import 'package:my_resep/screens/home_screen.dart';
 import 'package:my_resep/screens/settings_screen.dart';
+import 'package:my_resep/screens/login_screen.dart';
+import 'package:my_resep/utils/shared_prefs.dart'; 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+
+  final bool isLoggedIn = await Prefs.isLoggedIn();
+
+  runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn; 
+  
+  const MyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +32,6 @@ class MyApp extends StatelessWidget {
             api: Provider.of<ApiService>(context, listen: false),
           ),
         ),
-        
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: Consumer<ThemeProvider>(
@@ -33,9 +39,8 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'myCooking',
             debugShowCheckedModeBanner: false,
-            
+
             themeMode: themeProv.isDark ? ThemeMode.dark : ThemeMode.light,
-            
             theme: ThemeData(
               brightness: Brightness.light,
               useMaterial3: true,
@@ -50,7 +55,6 @@ class MyApp extends StatelessWidget {
                 foregroundColor: Colors.white,
               ),
             ),
-
             darkTheme: ThemeData(
               brightness: Brightness.dark,
               useMaterial3: true,
@@ -63,8 +67,11 @@ class MyApp extends StatelessWidget {
               cardColor: const Color(0xFF131316),
             ),
 
-            home: const HomeScreen(),
+            home: isLoggedIn ? const HomeScreen() : const LoginScreen(),
+
             routes: {
+              '/login': (context) => const LoginScreen(),
+              '/home': (context) => const HomeScreen(),
               '/settings': (context) => const SettingsScreen(),
             },
           );
